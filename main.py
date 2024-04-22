@@ -7,6 +7,7 @@ class Action:
         self.removed_file_content = []
         self.source_directory = []
         self.destination_directory = []
+        self.last_file_name = []
 
     def add_action(self, action):
         self.actions.append(action)
@@ -16,7 +17,6 @@ class Action:
             print("Last action:", self.actions[-1])
         else:
             print("No actions performed yet.")
-
 
 
     def add_file(self, filename):
@@ -33,7 +33,7 @@ class Action:
         file_path = os.path.join(os.getcwd(), file_name)
         self.save_file_contents_to_list(file_name)
         if os.path.isfile(file_path):
-            self.add_action("Removed file: " + file_path)
+            action.add_action({'type': 'remove_file', 'filename': file_name})
             os.remove(file_path)
             print("File removed successfully.")
         else:
@@ -57,34 +57,41 @@ class Action:
         else:
             print(f"File '{file_name}' does not exist in the current directory.")
 
-
-    def copy_file(self, src, dest):
-        if os.path.isfile(src):
-            shutil.copy(src, dest)
-            self.add_action("Copied file from {} to {}".format(src, dest))
-            print("File copied successfully.")
+    def copy_file(self, source, destination):
+        if os.path.exists(source):
+            shutil.move(source, destination)
+            print(f"Failas {source} perkeltas į {destination}.")
+            self.add_action({'type': 'move_file', 'source': source, 'destination': destination})
         else:
-            print("Source file does not exist.")
-
+            print(f"Klaida: Failas {source} neegzistuoja.")
 
     def move_file(self, source, destination):
-        if os.path.isfile(source):
-            self.source_directory = os.getcwd()
-            self.destination_directory = destination
-            shutil.move(source, destination)
-            self.add_action("Moved file from {} to {}".format(source, destination))
-            print("File moved successfully.")
-        else:
-            print("Source file does not exist.")
+        self.last_file_name = source
 
-    def create_directory(self, dir_name):
-        os.makedirs(dir_name, exist_ok=True)
-        self.add_action("Created directory: " + dir_name)
+
+        self.source_directory = os.getcwd()
+        self.destination_directory = destination
+        shutil.move(source, destination)
+        action.add_action({'type': 'move_file', 'source': source, 'destination': destination})
+        print("File moved successfully.")
+
+    def create_directory(self, directory_name):
+        os.makedirs(directory_name, exist_ok=True)
+        action.add_action({'type': 'create_directory', 'directory': directory_name})
         print("Directory created successfully.")
 
+class Restore(Action):
+    def __init__(self, actions, file_name, file_source, file_destination):
+        super().__init__()
+        self.history = actions
+        self.source_directory = file_source
+        self.destination_directory = file_destination
+        self.last_file_name = file_name
+
+
     def undo_last_action(self):
-        if self.actions:
-            last_action = self.actions.pop()
+        if self.history:
+            last_action = (self.history.pop())
             if last_action['type'] == 'create_file':
                 self.remove_file(last_action['filename'])
             elif last_action['type'] == 'remove_file':
@@ -96,52 +103,70 @@ class Action:
             elif last_action['type'] == 'copy_file':
                 self.remove_file(last_action['destination'])
             elif last_action['type'] == 'move_file':
-                self.move_file(last_action['destination'], last_action['source'])
+                self.move_file("source", "dsa")
+
+    def move_file(self, source, destination):
+
+        source = os.path.join(os.getcwd(), self.destination_directory, self.last_file_name)
+
+
+        self.source_directory = os.getcwd()
+
+        shutil.move(source, self.source_directory)
+        action.add_action({'type': 'move_file', 'source': source, 'destination': destination})
+        print("File moved successfully.")
 
 
 
 
 action = Action()
+def main():
 
-while True:
-    print("\nChoose an action:")
-    print("1. Add a file")
-    print("2. Remove a file")
-    print("3. Show files")
-    print("4. Copy a file")
-    print("5. Move a file")
-    print("6. Create a directory")
-    print("7. Show last action")
-    print("8. Undo last action")
-    print("9. Exit")
+    while True:
+        print("\nChoose an action:")
+        print("1. Add a file")
+        print("2. Remove a file")
+        print("3. Show files")
+        print("4. Copy a file")
+        print("5. Move a file")
+        print("6. Create a directory")
+        print("7. Show last action")
+        print("8. Undo last action")
+        print("9. Exit")
 
-    choice = input("Enter your choice (1-9): ")
+        choice = input("Enter your choice (1-9): ")
 
-    if choice == '1':
-        file_path = input("Enter the path of the file to add: ")
-        action.add_file(file_path)
-    elif choice == '2':
-        file_path = input("Enter the path of the file to remove: ")
-        action.remove_file(file_path)
-    elif choice == '3':
-        action.show_files()
-    elif choice == '4':
-        source = input("Enter the source file path: ")
-        destination = input("Enter the destination file path: ")
-        action.copy_file(source, destination)
-    elif choice == '5':
-        source = input("Enter the source file path: ")
-        destination = input("Enter the destination file path: ")
-        action.move_file(source, destination)
-    elif choice == '6':
-        dir_name = input("Enter the name of the directory to create: ")
-        action.create_directory(dir_name)
-    elif choice == '7':
-        action.show_actions()
-    elif choice == '8':
-        action.undo_last_action()
-    elif choice == '9':
-        print("Exiting program.")
-        break
-    else:
-        print("Invalid choice. Please enter a number between 1 and 9.")
+        if choice == '1':
+            file_path = input("Enter the path of the file to add: ")
+            action.add_file(file_path)
+        elif choice == '2':
+            file_path = input("Enter the path of the file to remove: ")
+            action.remove_file(file_path)
+        elif choice == '3':
+            action.show_files()
+        elif choice == '4':
+            source = input("Enter the source file path: ")
+            destination = input("Enter the destination file path: ")
+            action.copy_file(source, destination)
+        elif choice == '5':
+            source = input("Enter the file name: ")
+            destination = input("Enter the destination file path: ")
+            action.move_file(source, destination)
+        elif choice == '6':
+            dir_name = input("Enter the name of the directory to create: ")
+            action.create_directory(dir_name)
+        elif choice == '7':
+            action.show_actions()
+        elif choice == '8':
+            restore = Restore(action.actions, action.last_file_name, action.source_directory, action.destination_directory)
+            restore.undo_last_action()
+        elif choice == '9':
+            print("Exiting program.")
+            break
+        else:
+            print("Invalid choice. Please enter a number between 1 and 9.")
+
+
+
+if __name__ == "__main__":
+    main()

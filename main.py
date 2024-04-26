@@ -1,7 +1,6 @@
 import os
 import shutil
 from abc import ABC, abstractmethod
-import time
 
 
 class History:
@@ -12,7 +11,8 @@ class History:
             cls._instance = super(History, cls).__new__(cls)
         return cls._instance
 
-    def save_history_to_file(self, token):
+    @staticmethod
+    def save_history_to_file(token):
         file = open("action_history.txt", 'a')
         file.write(
             "Program initiated action:: " + token['type'] + "  :: File::  " + token[
@@ -21,7 +21,8 @@ class History:
         # file.write((',' * 160 + '\n'))
         file.close()
 
-    def read_last_action(self):
+    @staticmethod
+    def read_last_action():
         file = open("action_history.txt", 'r')
         line = file.readline()
 
@@ -31,7 +32,7 @@ class History:
             parts = line.split('::')
             action_type = parts[1].strip()
             filename = parts[3].strip()  # Splitting by space to get the filename
-            source_folder = parts[4].strip()  # Splitting by space to get the source folder
+            source_folder = parts[5].strip()  # Splitting by space to get the source folder
             destination_folder = parts[7].strip()
 
             return action_type, filename, source_folder, destination_folder
@@ -44,7 +45,7 @@ class Command(ABC):
         pass
 
 
-class Action():
+class Action:
     def __init__(self):
         self.__actions = []
         self.removed_file_content = []
@@ -68,26 +69,27 @@ class Action():
 
         return self.removed_file_content
 
-    def add_action(self, action, ):
+    def add_action(self, current_action, ):
         history = History()
 
-        self.__actions.append(action)
+        self.__actions.append(current_action)
         token = self.__actions.pop()
 
         history.save_history_to_file(token)
         self.__actions.append(token)
 
-    def show_actions(self):
+    @staticmethod
+    def show_actions():
         history = History()
         action_type, filename, source_folder, destination_folder = history.read_last_action()
-        print(
-            "Last action: " + action_type + " File used: " + filename + " Source: " + source_folder + " Destination: " + destination_folder)
+        print("Last action: " + action_type + " File used: " + filename
+              + " Source: " + source_folder + " Destination: " + destination_folder)
 
     def execute_action(self, case, file_name, destination=None):
 
         self.__last_file_name = file_name
         self.__source_directory = os.getcwd()
-        if (destination == None):
+        if destination is None:
             self.__destination_directory = ""
             destination = ""
         else:
@@ -117,11 +119,9 @@ class Action():
             self.__destination_directory = destination
             copy_file_command.execute()
 
-
         elif case == 5:
             if destination is None:
                 raise ValueError("Destination must be provided for moving a file.")
-            print(self.__last_file_name)
             self.add_action({'type': 'move_file', 'filename': self.__last_file_name, 'source': self.__source_directory,
                              'destination': os.getcwd() + "\\" + destination})
             move_file_command = MoveFile(self.__last_file_name, self.__source_directory, destination)
@@ -138,7 +138,8 @@ class Action():
         else:
             raise ValueError("Invalid action case.")
 
-    def show_files(self):
+    @staticmethod
+    def show_files():
         files = [f for f in os.listdir('.') if os.path.isfile(f)]
         if files:
             print("Files in current directory:")
@@ -290,8 +291,11 @@ class MoveFile(Command):
         self.destination_directory = destination
 
     def execute(self):
-        shutil.move(self.file_name, self.destination_directory)
-
+        if os.path.isdir(self.destination_directory):
+            shutil.move(self.file_name, os.path.join(os.getcwd(), self.destination_directory))
+        else:
+            os.mkdir(self.destination_directory)
+            shutil.move(self.file_name, os.path.join(os.getcwd(), self.destination_directory))
         print("File moved successfully.")
 
 
@@ -363,4 +367,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

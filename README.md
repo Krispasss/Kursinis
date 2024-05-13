@@ -92,24 +92,24 @@ The code style is following the PEP8 style guidelines.
 
 ## Results
 
-
-- Working on this project helped me to understand OOP principles.
-- Implementation of Design Patterns helped me to further expand my knowledge about 
-programming.
-- Using unittest helped me to test my program's functionality and troubleshoot
-errors.
+- The program successfully implements basic file management operations such as creating, removing, copying, 
+and moving files, as well as creating directories. 
+- The program utilizes the Command design pattern to encapsulate each operation as an object, providing a 
+structured and extensible approach to implementing file management actions.
+- A key feature of the program is its ability to undo the last file management action performed by the user.
+- The program maintains a log of all file management actions performed by the user, recording details such as the 
+type of action, file names, source, and destination folders. 
+- The program offers a simple and intuitive command-line interface for interacting with the file manager.
 
 
 ## Conclusion
 
-Through this coursework, I've embarked on a journey of learning fundamental 
-programming concepts and applying them to practical scenarios. Embracing 
-Object-Oriented Programming (OOP) principles has empowered me to organize 
-code more intuitively, fostering code reuse. Additionally, 
-exploring design patterns like the Command and Singleton patterns has introduced 
-me to powerful solutions for common programming challenges. As a newcomer to 
-programming, this coursework has not only equipped me with technical skills 
-but also instilled in me a deeper understanding of software design principles, 
-setting a strong foundation for future projects.
+In conclusion, the file manager project has effectively demonstrated basic file management functionalities with a 
+user-friendly interface. While the implementation successfully utilizes the Command design pattern for flexibility 
+and includes features like undo and action logging, there is room for improvement in error handling and user input 
+validation. Despite these limitations, the program's simplicity and modularity make it accessible and maintainable.
+Looking ahead, enhancing features such as error handling and adding advanced functionalities like file synchronization 
+could further improve its utility. Overall, the project provides valuable insights into software design principles and 
+offers a foundation for future enhancements and exploration of alternative approaches.
 
 

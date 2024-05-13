@@ -18,7 +18,6 @@ class History:
             "Program initiated action:: " + token['type'] + "  :: File::  " + token[
                 'filename'] + "  ::Source folder:: " + token['source'] + " ::destination:: " + token[
                 'destination'] + '\n')
-        # file.write((',' * 160 + '\n'))
         file.close()
 
     @staticmethod
@@ -31,8 +30,8 @@ class History:
         while line:
             parts = line.split('::')
             action_type = parts[1].strip()
-            filename = parts[3].strip()  # Splitting by space to get the filename
-            source_folder = parts[5].strip()  # Splitting by space to get the source folder
+            filename = parts[3].strip()
+            source_folder = parts[5].strip()
             destination_folder = parts[7].strip()
 
             return action_type, filename, source_folder, destination_folder
@@ -154,7 +153,7 @@ class Action:
 
             with open(file_name) as file:
                 for line in file:
-                    line = line.strip()  # or some other preprocessing
+                    line = line.strip()
 
                     self.removed_file_content.append(line)
 
@@ -229,7 +228,7 @@ class RemoveFile(Command):
 
             with open(file_name) as file:
                 for line in file:
-                    line = line.strip()  # or some other preprocessing
+                    line = line.strip()
 
                     self.removed_file_content.append(line)
 
